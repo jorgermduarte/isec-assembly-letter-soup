@@ -1,0 +1,17 @@
+Definicoes de informatica por Murphy:
++--------------------------------------------------------------------------+
+ Software: partes do sistema informatico que nao funcionam.                 
+ Perifericos: partes do sistema informatico que sao incompativeis com este. 
+ Cabo: parte do sistema informatico que e sempre demasiado curta.           
+ Copia de seguranca: uma operacao que nunca e feita a tempo.                
+ Memoria: parte do sistema informatico que e insuficiente.                  
+ Ficheiro: parte do sistema informatico que nunca pode ser encontrada.      
+ Processador: parte do sistema informatico que esta sempre obsoleta.        
++--------------------------------------------------------------------------+
+______________________________________________________________________________
+______________________________________________________________________________
+______________________________________________________________________________
+______________________________________________________________________________
+______________________________________________________________________________
+______________________________________________________________________________
+______________________________________________________________________________
