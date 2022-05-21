@@ -79,11 +79,11 @@ leavekey:
 	ret
 ReadKeyboardInput	endp
 
-HandleMenuInput proc
+GameMenu proc
 	loopMenu:
+		call ReadKeyboardInput; reads the user keyboard inputs
 		call CleanScreen; clean the game screen
 		call DisplayMenu; imprime o menu no ecra
-		call ReadKeyboardInput; reads the user keyboard inputs
 
 		mov ah, 1h
 		int 21h
@@ -103,16 +103,9 @@ HandleMenuInput proc
 		jmp     loopMenu ; try again
 
 		OPCLEAVE:
-			call CleanScreen
-			;mov	ah,4CH
-			;INT	21H
-HandleMenuInput endp
-
-StartGame proc
-	loopMenu:
-        call CleanScreen ; clean the screen
-		call HandleMenuInput ; handles the user input selection
-StartGame	endp
+			mov	ah,4CH
+			INT	21H
+GameMenu endp
 
 ; ------------------------------------------------------------------
 ; ---------------------------- MAIN --------------------------------
@@ -123,8 +116,9 @@ Main	proc
 	mov			ax,0B800h
 	mov			es,ax
 
-    call		CleanScreen		; clean the game screen
-	call		DisplayMenu     ; display the game menu
+	;call CleanScreen		; clean the game screen
+	;call		DisplayMenu     ; display the game menu
+	call GameMenu ; start the game
 
 Main	endp 					; fim do main
 
@@ -139,3 +133,4 @@ end		Main 					; fim do programa
 
 
 ; ============= END OF MAIN PROCEDURES =============
+
