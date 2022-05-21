@@ -42,8 +42,6 @@ classificacao:
     . no fim de jogo, se a classificao obtida estiver no top 10:
         . é pedido ao jogador o seu nome de utilizador e é gravado.
 
-
-
 . modo entrega:
     . plataforma NONIO
     . grupo de 2 elementos
