@@ -24,6 +24,26 @@ dseg  segment para public 'data' ; start of code segment D
 				db "                    **************************************",13,10
 				db "                                                          ",13,10
 				db "                                                          ",13,10,'$'
+	
+	
+	; about the game
+	MenuAbout db "                                                              ",13,10
+				db "                    ****************************************",13,10
+				db "                    *                                      *",13,10
+				db "                    *  Neste jogo vais puder encontrar     *",13,10
+                db "                    *  e assinalar as palavras       	   *",13,10
+                db "                    *  escondidas no tabuleiro        	   *",13,10
+				db "                    *  com recurso ás 'setas' e ao 'ENTER' *",13,10
+				db "                    *                                      *",13,10
+				db "                    *              **AVISO**               *",13,10
+				db "                    *  !!COMEÇA SEMPRE PELA PRIMEIRA LETRA *",13,10
+				db "                    *           DA  PALAVRA!!              *",13,10
+				db "                    ****************************************",13,10
+				db "                                                            ",13,10
+				db "                                                            ",13,10,'$'
+
+
+
 
 		Erro_Open       db      'Erro ao tentar abrir o ficheiro$'
         Erro_Ler_Msg    db      'Erro ao tentar ler do ficheiro$'
