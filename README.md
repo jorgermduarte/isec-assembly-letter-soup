@@ -1,8 +1,8 @@
 # Project specifications (Assembly Letter Soup)
 
-- [ ] **GAME MENU**
+- [x] **GAME MENU**
    - [x] jogar
-   - [ ] top 10
+   - [x] top 10
    - [x] sair
 
 - [ ] **QUADRADO AUXILIAR**:
@@ -31,9 +31,9 @@
     - [ ] numero de tentativas falhadas
 
 - [ ] **Classificação**:
-    - [ ] apresentacao pontuacao obtida
-    - [ ] nome do utilizador e valor classficacao
-    - [ ] leitura de um ficheiro com a classificao dos jogadores
+    - [x] apresentacao pontuacao obtida
+    - [x] nome do utilizador e valor classficacao
+    - [x] leitura de um ficheiro com a classificao dos jogadores
     - [ ] no fim de jogo, se a classificao obtida estiver no top 10:
         - [ ] é pedido ao jogador o seu nome de utilizador e é gravado.
 
