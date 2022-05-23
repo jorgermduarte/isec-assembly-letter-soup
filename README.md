@@ -40,7 +40,7 @@
 - [ ] **Modo Entrega**:
     - [ ] plataforma NONIO
     - [ ] grupo de 2 elementos
-    - [ ] relatorio formado pdf e papel ( máximo de 5 páginas)
+    - [ ] relatorio formatado em pdf e papel ( máximo de 5 páginas)
 
 - [ ] **Defesa**:
     - [ ] pedidos de pequenas alteracoes
