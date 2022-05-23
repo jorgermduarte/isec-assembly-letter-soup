@@ -9,7 +9,6 @@ PILHA	SEGMENT PARA STACK 'STACK'
 PILHA	ENDS
 
 dseg  segment para public 'data' ; start of code segment D
-
 	MenuOptions db "                                                          ",13,10
 				db "                    **************************************",13,10
 				db "                    *   ISEC - 2021/22 TAC               *",13,10
@@ -19,31 +18,29 @@ dseg  segment para public 'data' ; start of code segment D
 				db "                    *                                    *",13,10
 				db "                    *   1. Jogar                         *",13,10
 				db "                    *   2. Top 10                        *",13,10
-				db "                    *   3. Sair                          *",13,10
+				db "                    *   3. Sobre                         *",13,10
+				db "                    *   4. Sair                          *",13,10
 				db "                    *                                    *",13,10
 				db "                    **************************************",13,10
 				db "                                                          ",13,10
 				db "                                                          ",13,10,'$'
-	
-	
+
 	; about the game
 	MenuAbout db "                                                              ",13,10
 				db "                    ****************************************",13,10
 				db "                    *                                      *",13,10
-				db "                    *  Neste jogo vais puder encontrar     *",13,10
-                db "                    *  e assinalar as palavras       	   *",13,10
-                db "                    *  escondidas no tabuleiro        	   *",13,10
-				db "                    *  com recurso ás 'setas' e ao 'ENTER' *",13,10
+				db "                    *  Neste jogo vais puder encontrar e   *",13,10
+                db "                    *  assinalar as palavras escondidas no *",13,10
+                db "                    *  tabuleiro com recurso as 'setas' e  *",13,10
+				db "                    *  ao 'ENTER'                          *",13,10
 				db "                    *                                      *",13,10
 				db "                    *              **AVISO**               *",13,10
-				db "                    *  !!COMEÇA SEMPRE PELA PRIMEIRA LETRA *",13,10
+				db "                    *  !!COMECA SEMPRE PELA PRIMEIRA LETRA *",13,10
 				db "                    *           DA  PALAVRA!!              *",13,10
 				db "                    ****************************************",13,10
-				db "                                                            ",13,10
+				db "                          Para voltar clique no ESC         ",13,10
+				db "                    ****************************************",13,10
 				db "                                                            ",13,10,'$'
-
-
-
 
 		Erro_Open       db      'Erro ao tentar abrir o ficheiro$'
         Erro_Ler_Msg    db      'Erro ao tentar ler do ficheiro$'
@@ -89,12 +86,22 @@ CleanScreen	endp
 
 DisplayMenu	proc
 	goto_xy   0,3
-	lea  dx,  MenuOptions ; menu inic
+	lea  dx,  MenuOptions
 	mov  ah,  9
 	int  21h
 	ret
 
 DisplayMenu	endp
+
+DisplayAbout	proc
+	goto_xy   0,3
+	lea  dx,  MenuAbout
+	mov  ah,  9
+	int  21h
+	call GameMenu
+	ret
+
+DisplayAbout	endp
 
 ReadKeyboardInput	PROC
 	mov	ah,08h
@@ -277,7 +284,7 @@ GameMenu proc
 		cmp		al, 50 ; 2
 		je		OPCLEAVE
 		cmp		al, 51 ; 3
-		je		OPCLEAVE
+		je		OPCABOUT
 		cmp		al, 52 ; 4
 		je		OPCLEAVE
 		cmp		al, 27 ; ESC
@@ -286,9 +293,14 @@ GameMenu proc
 
 		OPCSTARTGAME:
 			call HandleGame
+
+		OPCABOUT:
+			call DisplayAbout
+
 		OPCLEAVE:
 			mov	ah,4CH
 			INT	21H
+
 GameMenu endp
 
 ; ------------------------------------------------------------------
