@@ -9,6 +9,7 @@ PILHA	SEGMENT PARA STACK 'STACK'
 PILHA	ENDS
 
 dseg  segment para public 'data' ; start of code segment D
+
 	MenuOptions db "                                                          ",13,10
 				db "                    **************************************",13,10
 				db "                    *   ISEC - 2021/22 TAC               *",13,10
@@ -18,56 +19,54 @@ dseg  segment para public 'data' ; start of code segment D
 				db "                    *                                    *",13,10
 				db "                    *   1. Jogar                         *",13,10
 				db "                    *   2. Top 10                        *",13,10
-				db "                    *   3. Sobre                         *",13,10
-				db "                    *   4. Sair                          *",13,10
+				db "                    *   3. Sair                          *",13,10
 				db "                    *                                    *",13,10
 				db "                    **************************************",13,10
 				db "                                                          ",13,10
 				db "                                                          ",13,10,'$'
-
+	
+	
 	; about the game
 	MenuAbout db "                                                              ",13,10
 				db "                    ****************************************",13,10
 				db "                    *                                      *",13,10
-				db "                    *  Neste jogo vais puder encontrar e   *",13,10
-                db "                    *  assinalar as palavras escondidas no *",13,10
-                db "                    *  tabuleiro com recurso as 'setas' e  *",13,10
-				db "                    *  ao 'ENTER'                          *",13,10
+				db "                    *  Neste jogo vais puder encontrar     *",13,10
+                db "                    *  e assinalar as palavras       	   *",13,10
+                db "                    *  escondidas no tabuleiro        	   *",13,10
+				db "                    *  com recurso ás 'setas' e ao 'ENTER' *",13,10
 				db "                    *                                      *",13,10
 				db "                    *              **AVISO**               *",13,10
-				db "                    *  !!COMECA SEMPRE PELA PRIMEIRA LETRA *",13,10
+				db "                    *  !!COMEÇA SEMPRE PELA PRIMEIRA LETRA *",13,10
 				db "                    *           DA  PALAVRA!!              *",13,10
 				db "                    ****************************************",13,10
-				db "                          Para voltar clique no ESC         ",13,10
-				db "                    ****************************************",13,10
+				db "                                                            ",13,10
 				db "                                                            ",13,10,'$'
 
-	; top 10 classification
-	MenuTop10 db "                                                              ",13,10
-				db "                    ****************************************",13,10
-				db "                          Para voltar clique no ESC         ",13,10
-				db "                    ****************************************",13,10
-				db " 					 CLASSIFICAO TOP 10:   				",13,10,'$'
 
-		; variables used to display files
+
+
 		Erro_Open       db      'Erro ao tentar abrir o ficheiro$'
         Erro_Ler_Msg    db      'Erro ao tentar ler do ficheiro$'
         Erro_Close      db      'Erro ao tentar fechar o ficheiro$'
-        File_Board      db      'dados.txt',0; dados.txt file name
-		File_Top10		db 		'top10.txt',0 ; top10.txt file name
+        Fich         	db      'DADOS.TXT',0
         HandleFich      dw      0
         car_fich        db      ?
-		; end of the variables used to display the dados.txt
 
-		; variables used by the HandleUserInput procedure
 		Car			db	32	; Guarda um caracter do Ecra
 		Cor			db	7	; Guarda os atributos de cor do caracter
-		; end of the variables used by the HandleUserInput procedure
-
-		; variables used by the goto_xy macro
 		POSy		db	1	; a linha pode ir de [1 .. 25]
 		POSx		db	2	; POSx pode ir [1..80]
-		; end of the variables used by the goto_xy macro
+
+		; Time Variables 
+		hours		dw			0
+		minutes		dw			0
+		seconds		dw			0
+	;   actualSeconds 		dw 		0 Variable NEEDED for time read from the system
+		timeStart	dw			0	; Inital start time
+		timeGame	dw			;? value for it?
+		timeLimit	dw			90	; Time limit for the user
+
+
 
 dseg	ends ; end of code segment D
 
@@ -83,6 +82,7 @@ goto_xy	macro	POSx,POSy
 	mov		dh,POSy
 	int		10h
 endm
+
 ; ======== END OF MACROS ===========
 
 CleanScreen	proc
@@ -101,75 +101,12 @@ CleanScreen	endp
 
 DisplayMenu	proc
 	goto_xy   0,3
-	lea  dx,  MenuOptions
+	lea  dx,  MenuOptions ; menu inic
 	mov  ah,  9
 	int  21h
 	ret
 
 DisplayMenu	endp
-
-DisplayAbout	proc
-	goto_xy   0,3
-	lea  dx,  MenuAbout
-	mov  ah,  9
-	int  21h
-	call GameMenu
-	ret
-
-DisplayAbout	endp
-
-DisplayTop10 proc
-	call CleanScreen
-	goto_xy   0,3
-	lea  dx,  MenuTop10
-	mov  ah,  9
-	int  21h
-
-	mov     ah,3dh
-	mov     al,0
-	lea     dx,File_Top10
-	int     21h
-	jc      erro_abrir
-	mov     HandleFich,ax
-	jmp     ler_ciclo
-	erro_abrir:
-			mov     ah,09h
-			lea     dx,Erro_Open
-			int     21h
-			jmp     sai
-
-	ler_ciclo:
-			mov     ah,3fh
-			mov     bx,HandleFich
-			mov     cx,1
-			lea     dx,car_fich
-			int     21h
-			jc		erro_ler
-			cmp		ax,0		;EOF?
-			je		fecha_ficheiro
-			mov     ah,02h
-			mov		dl,car_fich
-			int		21h
-			jmp		ler_ciclo
-
-	erro_ler:
-			mov     ah,09h
-			lea     dx,Erro_Ler_Msg
-			int     21h
-
-	fecha_ficheiro:
-			mov     ah,3eh
-			mov     bx,HandleFich
-			int     21h
-			jnc     sai
-
-			mov     ah,09h
-			lea     dx,Erro_Close
-			Int     21h
-	sai:
-		call GameMenu
-		ret
-DisplayTop10 endp
 
 ReadKeyboardInput	PROC
 	mov	ah,08h
@@ -187,7 +124,7 @@ ReadKeyboardInput	endp
 DisplayFile	proc
 	mov     ah,3dh
 	mov     al,0
-	lea     dx,File_Board
+	lea     dx,Fich
 	int     21h
 	jc      erro_abrir
 	mov     HandleFich,ax
@@ -350,29 +287,55 @@ GameMenu proc
 		cmp 	al, 49 ; 1
 		je		OPCSTARTGAME
 		cmp		al, 50 ; 2
-		je		OPCTOP10
+		je		OPCLEAVE
 		cmp		al, 51 ; 3
-		je		OPCABOUT
+		je		OPCLEAVE
 		cmp		al, 52 ; 4
 		je		OPCLEAVE
 		cmp		al, 27 ; ESC
 		je		OPCLEAVE
 		jmp     loopMenu ; try again
 
-		OPCTOP10:
-			call DisplayTop10
-
 		OPCSTARTGAME:
 			call HandleGame
-
-		OPCABOUT:
-			call DisplayAbout
-
 		OPCLEAVE:
 			mov	ah,4CH
 			INT	21H
-
 GameMenu endp
+
+Time proc   ;proc for time reading from the system 
+; CH - hours  | CL - minutes | DH - seconds
+
+	PUSH AX ;returns the first 16bits
+	PUSH BX ;BX process depends  on the less significant bit of the address branch
+	PUSH CX ;used as a counter
+	PUSH DX ;is used  with AX register for multiply and divide operations
+
+	PUSHF	;flag
+	
+	mov AH, 2CH			;hours
+	int 21h
+	
+	xor AX, AX			;set AX register to zero
+	mov AL, DH			;mov seconds to AL 
+	mov seconds, AX 	;store seconds
+	
+	xor AX, AX
+	mov AL, CL			;mov minutes to AL
+	mov minutes, AX		;store minutes
+
+	xor AX, AX
+	mov AL, CH			;mov hours to AL
+	mov hours, AX		;stores hours
+	
+	POPF 				;pops a double word
+	POP DX				;load DX
+	POP CX				;load CX
+	POP BX				;load BX
+	POP AX				;load AX
+	ret
+
+Time endp
 
 ; ------------------------------------------------------------------
 ; ---------------------------- MAIN --------------------------------
@@ -389,6 +352,8 @@ Main	endp 					; fim do main
 cseg	ends 				; end of code segment C
 
 end		Main 					; fim do programa
+
+
 ; ------------------------------------------------------------------
 ; ..------------------------ END OF MAIN ---------------------------
 ; ------------------------------------------------------------------
