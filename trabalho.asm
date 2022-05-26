@@ -68,6 +68,11 @@ dseg  segment para public 'data' ; start of code segment D
 
 
 
+
+		; variables used by the random procedure
+		ultimo_num_aleat dw 0
+		str_num db 5 dup(?),'$'
+
 dseg	ends ; end of code segment D
 
 cseg	segment para public 'code' ; start of code segment C
@@ -84,6 +89,100 @@ goto_xy	macro	POSx,POSy
 endm
 
 ; ======== END OF MACROS ===========
+
+;------------------------------------------------------
+;RandomNumber - calcula um numero aleatorio de 16 bits
+;Parametros passados pela pilha
+;entrada:
+;nao tem parametros de entrada
+;saida:
+;param1 - 16 bits - numero aleatorio calculado
+;notas adicionais:
+; deve estar definida uma variavel => ultimo_num_aleat dw 0
+; assume-se que DS esta a apontar para o segmento onde esta armazenada ultimo_num_aleat
+RandomNumber proc near
+
+	sub	sp,2
+	push	bp
+	mov	bp,sp
+	push	ax
+	push	cx
+	push	dx	
+	mov	ax,[bp+4]
+	mov	[bp+2],ax
+
+	mov	ah,00h
+	int	1ah
+
+	add	dx,ultimo_num_aleat
+	add	cx,dx	
+	mov	ax,65521
+	push	dx
+	mul	cx
+	pop	dx
+	xchg	dl,dh
+	add	dx,32749
+	add	dx,ax
+
+	mov	ultimo_num_aleat,dx
+
+	mov	[BP+4],dx
+
+	pop	dx
+	pop	cx
+	pop	ax
+	pop	bp
+	ret
+RandomNumber endp
+;------------------------------------------------------
+;PrintNumber - imprime um numero de 16 bits na posicao x,y
+;Parametros passados pela pilha
+;entrada:
+;param1 -  8 bits - posicao x
+;param2 -  8 bits - posicao y
+;param3 - 16 bits - numero a imprimir
+;saida:
+;nao tem parametros de saida
+;notas adicionais:
+; deve estar definida uma variavel => str_num db 5 dup(?),'$'
+; assume-se que DS esta a apontar para o segmento onde esta armazenada str_num
+; sao eliminados da pilha os parametros de entrada
+PrintNumber proc near
+	push	bp
+	mov		bp,sp
+	push	ax
+	push	bx
+	push	cx
+	push	dx
+	push	di
+	mov		ax,[bp+4] ;param3
+	lea		di,[str_num+5]
+	mov		cx,5
+	prox_dig:
+		xor		dx,dx
+		mov		bx,10
+		div		bx
+		add		dl,'0' ; dh e' sempre 0
+		dec		di
+		mov		[di],dl
+		loop	prox_dig
+
+		mov		ah,02h
+		mov		bh,00h
+		mov		dl,[bp+7] ;param1
+		mov		dh,[bp+6] ;param2
+		int		10h
+		mov		dx,di
+		mov		ah,09h
+		int		21h
+		pop		di
+		pop		dx
+		pop		cx
+		pop		bx
+		pop		ax
+		pop		bp
+		ret		4 ;limpa parametros (4 bytes) colocados na pilha
+PrintNumber endp
 
 CleanScreen	proc
 	mov		ax,0B800h
@@ -169,6 +268,30 @@ DisplayFile	endp
 
 ;todo generate a new board with random letters
 GenerateNewGameBoard proc
+	MOV CX, 2
+	MOV BX, 1
+	BEGIN:
+		goto_xy CL,BL ; col, line
+		call RandomNumber
+		POP	AX ; grab a random number from the stack "pilha"
+		;MOV BL, 16 ; set bl with the value 16
+		;DIV AX; divie the ax with BL //todo, add a division or smthg for the value be between 60-90
+		;ADD AL,65
+		MOV AH, 2 ; set output function
+		MOV DL, AL ; quotient get stored in AL and remainder in AH
+		INT 21H ; print ASCII character
+		INC CX
+		INC CX ; incrmenet 2 times the col because of the space between
+		CMP CX,26
+		JNE BEGIN
+		CMP CX,26
+		JMP NEXTLINE
+		RET
+	NEXTLINE:
+		MOV CX,2
+		INC BX
+		CMP BX,12
+		JNE BEGIN
 GenerateNewGameBoard endp
 
 ;set a game word or words based on the file and word position
@@ -268,9 +391,9 @@ HandleWordSelection	endp
 HandleGame proc
 		call 	CleanScreen
 		goto_xy	0,0
-		call	DisplayFile
-		call	HandleWordSelection
-		goto_xy	0,22
+		call DisplayFile
+		call GenerateNewGameBoard
+		call HandleWordSelection
 HandleGame	endp
 
 GameMenu proc
