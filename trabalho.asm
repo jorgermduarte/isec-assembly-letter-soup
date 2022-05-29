@@ -79,6 +79,9 @@ dseg  segment para public 'data' ; start of code segment D
 		; variables used by the random procedure
 		ultimo_num_aleat dw 0
 		str_num db 5 dup(?),'$'
+		
+		x word ?
+		y word ? 
 
 dseg	ends ; end of code segment D
 
@@ -337,29 +340,30 @@ DisplayFile	proc
 DisplayFile	endp
 
 GenerateNewGameBoard proc
-	MOV CX, 2
-	MOV BX, 1
+	MOV x, 2
+	MOV y, 1
+
 	BEGIN:
-		goto_xy CL,BL ; col, line
+		MOV AX, x
+		MOV BX, y
+		goto_xy AL, BL; col, line
 		call RandomNumber
 		POP	AX ; grab a random number from the stack "pilha"
-		;MOV BL, 16 ; set bl with the value 16
-		;DIV AX; divie the ax with BL //todo, add a division or smthg for the value be between 60-90
-		;ADD AL,65
+
 		MOV AH, 2 ; set output function
 		MOV DL, AL ; quotient get stored in AL and remainder in AH
 		INT 21H ; print ASCII character
-		INC CX
-		INC CX ; incrmenet 2 times the col because of the space between
-		CMP CX,26
+		INC x
+		INC x ; incrmenet 2 times the col because of the space between
+		CMP x,26
 		JNE BEGIN
-		CMP CX,26
+		CMP x,26
 		JMP NEXTLINE
 		RET
 	NEXTLINE:
-		MOV CX,2
-		INC BX
-		CMP BX,12
+		MOV x,2
+		INC y
+		CMP y,12
 		JNE BEGIN
 GenerateNewGameBoard endp
 
