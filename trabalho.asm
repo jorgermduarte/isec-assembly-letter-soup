@@ -126,12 +126,12 @@ RandomNumber proc near
 
 	add	dx,ultimo_num_aleat
 	add	cx,dx	
-	mov	ax,65521
+	mov	ax,0
 	push	dx
 	mul	cx
 	pop	dx
 	xchg	dl,dh
-	add	dx,32749
+	add	dx,0
 	add	dx,ax
 
 	mov	ultimo_num_aleat,dx
@@ -347,12 +347,26 @@ GenerateNewGameBoard proc
 		MOV AX, x
 		MOV BX, y
 		goto_xy AL, BL; col, line
-		call RandomNumber
-		POP	AX ; grab a random number from the stack "pilha"
+
+		MOV BX, 0 ; custom variable to hold the number that incrmeents
+
+		;====  todo ===============
+		; generate random number and add to BL
+		
+		
+		; ====== end of todo ==========
+
+
+		ADD BL, 'A';
+		MOV DL, BL
+
+		;CMP DL,91
+		;JAE BEGIN
 
 		MOV AH, 2 ; set output function
-		MOV DL, AL ; quotient get stored in AL and remainder in AH
+		;MOV DL, AL ; quotient get stored in AL and remainder in AH
 		INT 21H ; print ASCII character
+
 		INC x
 		INC x ; incrmenet 2 times the col because of the space between
 		CMP x,26
