@@ -43,5 +43,4 @@
     - [ ] relatorio formatado em pdf e papel ( máximo de 5 páginas)
 
 - [ ] **Defesa**:
-    - [ ] pedidos de pequenas alteracoes
-
+    - [ ] pedidos de pequenas alterações

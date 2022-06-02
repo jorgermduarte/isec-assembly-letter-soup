@@ -234,6 +234,9 @@ DisplayTop10 proc
 	mov  ah,  9
 	int  21h
 
+	MOV POSx, 20
+	MOV POSy, 10
+	goto_xy POSx,POSy
 	mov     ah,3dh
 	mov     al,0
 	lea     dx,File_Top10
@@ -253,14 +256,20 @@ DisplayTop10 proc
 			mov     cx,1
 			lea     dx,car_fich
 			int     21h
+
 			jc		erro_ler
 			cmp		ax,0		;EOF?
 			je		fecha_ficheiro
 			mov     ah,02h
 			mov		dl,car_fich
 			int		21h
-			jmp		ler_ciclo
-
+			cmp dl, 00AH
+			JE prox_linha
+			JMP	ler_ciclo
+	prox_linha:
+		ADD POSy, 1
+		goto_xy POSx,POSy
+		jmp ler_ciclo
 	erro_ler:
 			mov     ah,09h
 			lea     dx,Erro_Ler_Msg
@@ -277,6 +286,7 @@ DisplayTop10 proc
 			Int     21h
 	sai:
 		call GameMenu
+		goto_xy   0,3
 		ret
 DisplayTop10 endp
 
@@ -405,7 +415,7 @@ HandleWordSelection	PROC
 			int		10h		
 			mov		Car, al		; Guarda o Caracter que está na posição do Cursor
 			mov		Cor, ah		; Guarda a cor que está na posição do Cursor
-			
+
 			goto_xy	78,0		; Mostra o caractereque estava na posição do AVATAR
 			mov		ah, 02h		; IMPRIME caracter da posição no canto
 			mov		dl, Car	
