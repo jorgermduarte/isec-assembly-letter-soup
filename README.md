@@ -6,7 +6,7 @@
    - [x] sair
 
 - [ ] **QUADRADO AUXILIAR**:
-    - [ ] apresentacao das palavras a encontrar num quadrado auxiliar ao tabuleiro
+    - [x] apresentacao das palavras a encontrar num quadrado auxiliar ao tabuleiro
     - [ ] palavras identificadas no tabuleiro ficam com background diferente
       - [ ] é eliminada da lista ou fica com o fundo azul.
 

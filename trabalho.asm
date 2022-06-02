@@ -48,40 +48,41 @@ dseg  segment para public 'data' ; start of code segment D
 				db "                    ****************************************",13,10
 				db "                                                            ",13,10,'$'
 
-		Erro_Open       db      'Erro ao tentar abrir o ficheiro$'
-        Erro_Ler_Msg    db      'Erro ao tentar ler do ficheiro$'
-        Erro_Close      db      'Erro ao tentar fechar o ficheiro$'
-   		File_Board      db      'dados.txt',0; dados.txt file name
-		File_Top10		db 		'top10.txt',0 ; top10.txt file name
-        HandleFich      dw      0
-        car_fich        db      ?
-		; end of the variables used to display the dados.txt
+	Erro_Open       db      'Erro ao tentar abrir o ficheiro$'
+	Erro_Ler_Msg    db      'Erro ao tentar ler do ficheiro$'
+	Erro_Close      db      'Erro ao tentar fechar o ficheiro$'
+	File_Board      db      'dados.txt',0; dados.txt file name
+	File_Top10		db 		'top10.txt',0 ; top10.txt file name
+	File_WordsList  db 		'palavras.txt',0; palavras.txt file name
+	HandleFich      dw      0
+	car_fich        db      ?
+	; end of the variables used to display the dados.txt
 
-		; variables used by the HandleUserInput procedure
-		Car			db	32	; Guarda um caracter do Ecra
-		Cor			db	7	; Guarda os atributos de cor do caracter
-		; end of the variables used by the HandleUserInput procedure
+	; variables used by the HandleUserInput procedure
+	Car			db	32	; Guarda um caracter do Ecra
+	Cor			db	7	; Guarda os atributos de cor do caracter
+	; end of the variables used by the HandleUserInput procedure
 
-		; variables used by the goto_xy macro
-		POSy		db	1	; a linha pode ir de [1 .. 25]
-		POSx		db	2	; POSx pode ir [1..80]
-		; end of the variables used by the goto_xy macro
+	; variables used by the goto_xy macro
+	POSy		db	1	; a linha pode ir de [1 .. 25]
+	POSx		db	2	; POSx pode ir [1..80]
+	; end of the variables used by the goto_xy macro
 
-		; Time Variables
-		hours		dw			0
-		minutes		dw			0
-		seconds		dw			0
-		;   actualSeconds 		dw 		0 Variable NEEDED for time read from the system
-		timeStart	dw			0	; Inital start time
-		timeGame	dw			?;? value for it?
-		timeLimit	dw			90	; Time limit for the user
+	; Time Variables
+	hours		dw			0
+	minutes		dw			0
+	seconds		dw			0
+	;   actualSeconds 		dw 		0 Variable NEEDED for time read from the system
+	timeStart	dw			0	; Inital start time
+	timeGame	dw			?;? value for it?
+	timeLimit	dw			90	; Time limit for the user
 
-		; variables used by the random procedure
-		ultimo_num_aleat dw 0
-		str_num db 5 dup(?),'$'
-		
-		x word ?
-		y word ? 
+	; variables used by the random procedure
+	ultimo_num_aleat dw 0
+	str_num db 5 dup(?),'$'
+
+	x word ?
+	y word ?
 
 dseg	ends ; end of code segment D
 
@@ -226,6 +227,61 @@ DisplayAbout	proc
 	ret
 
 DisplayAbout	endp
+
+DisplayWordsList proc
+	MOV POSx, 32
+	MOV POSy, 3
+	goto_xy POSx,POSy
+	mov     ah,3dh
+	mov     al,0
+	lea     dx,File_WordsList
+	int     21h
+	jc      erro_abrir
+	mov     HandleFich,ax
+	jmp     ler_ciclo
+	erro_abrir:
+			mov     ah,09h
+			lea     dx,Erro_Open
+			int     21h
+			jmp     sai
+
+	ler_ciclo:
+			mov     ah,3fh
+			mov     bx,HandleFich
+			mov     cx,1
+			lea     dx,car_fich
+			int     21h
+
+			jc		erro_ler
+			cmp		ax,0		;EOF?
+			je		fecha_ficheiro
+			mov     ah,02h
+			mov		dl,car_fich
+			int		21h
+			cmp dl, 00AH
+			JE prox_linha
+			JMP	ler_ciclo
+	prox_linha:
+		ADD POSy, 1
+		goto_xy POSx,POSy
+		jmp ler_ciclo
+	erro_ler:
+			mov     ah,09h
+			lea     dx,Erro_Ler_Msg
+			int     21h
+
+	fecha_ficheiro:
+			mov     ah,3eh
+			mov     bx,HandleFich
+			int     21h
+			jnc     sai
+
+			mov     ah,09h
+			lea     dx,Erro_Close
+			Int     21h
+	sai:
+		ret
+DisplayWordsList endp
 
 DisplayTop10 proc
 	call CleanScreen
@@ -492,6 +548,7 @@ HandleGame proc
 		call 	CleanScreen
 		goto_xy	0,0
 		call DisplayFile
+		call DisplayWordsList
 		call GenerateNewGameBoard
 		call HandleWordSelection
 HandleGame	endp
