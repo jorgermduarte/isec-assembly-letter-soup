@@ -15,8 +15,8 @@
     - [x] . selecao letra tecla enter.
 
 - [ ] **BOARD**:
-    - [ ] base de jogo ( tabuleiro 12x12)
-    - [ ] gerado tabuleiro com letras aleatórias
+    - [x] base de jogo ( tabuleiro 12x12)
+    - [x] gerado tabuleiro com letras aleatórias
     - [ ] disposição de letras ( vertical, horizontal, diagonal) todos os sentidos
         - [ ] sobre este tabuleiro com letras aleatórias é colocado as palavras a encontrar
         - [ ] as palavras aleatorias devem derivar de um ficheiro de texto com o local e o local a serem colocadas no tabuleiro

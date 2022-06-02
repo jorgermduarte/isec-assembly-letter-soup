@@ -347,33 +347,36 @@ GenerateNewGameBoard proc
 		MOV AX, x
 		MOV BX, y
 		goto_xy AL, BL; col, line
+		; generate random number between 65-90
+		JMP GENERATERNUMBER
 
-		MOV BX, 0 ; custom variable to hold the number that incrmeents
-
-		;====  todo ===============
-		; generate random number and add to BL
-		
-		
-		; ====== end of todo ==========
-
-
-		ADD BL, 'A';
+		RET
+	DISPLAYLETTER:
+		MOV BX, 0 ; custom variable to hold the number
+		MOV BL, AL
 		MOV DL, BL
 
-		;CMP DL,91
-		;JAE BEGIN
-
 		MOV AH, 2 ; set output function
-		;MOV DL, AL ; quotient get stored in AL and remainder in AH
 		INT 21H ; print ASCII character
-
 		INC x
 		INC x ; incrmenet 2 times the col because of the space between
 		CMP x,26
 		JNE BEGIN
 		CMP x,26
 		JMP NEXTLINE
-		RET
+	GENERATERNUMBER:
+		call RandomNumber
+		POP AX
+
+		mov DX, 0
+		mov CX,100
+		DIV CX
+
+		CMP AL,65
+		JB GENERATERNUMBER
+		CMP AL,90
+		JA GENERATERNUMBER
+		JMP DISPLAYLETTER
 	NEXTLINE:
 		MOV x,2
 		INC y
