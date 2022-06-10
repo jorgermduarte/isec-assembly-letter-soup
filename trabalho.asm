@@ -86,7 +86,7 @@ dseg  segment para public 'data' ; start of code segment D
 	
 	xint db 0
 
-	gameWordsList  dw 100 dup(' '); list of the words to be found
+	gameWordsList  dw 75 dup('.'); list of the words to be found
 	gameWordsReaded dw 0 ; total words readed from the file
 
 dseg	ends ; end of code segment D
@@ -229,7 +229,6 @@ DisplayWordsList proc
 			lea     dx,Erro_Open
 			int     21h
 			jmp     sai
-
 	ler_ciclo:
 			mov     ah,3fh
 			mov     bx,HandleFich
@@ -267,13 +266,11 @@ DisplayWordsList proc
 			mov     ah,09h
 			lea     dx,Erro_Ler_Msg
 			int     21h
-
 	fecha_ficheiro:
 			mov     ah,3eh
 			mov     bx,HandleFich
 			int     21h
 			jnc     sai
-
 			mov     ah,09h
 			lea     dx,Erro_Close
 			Int     21h
@@ -283,12 +280,19 @@ DisplayWordsList endp
 
 
 DisplayWordsFromVariable proc
+	PUSH AX
+	PUSH BX
+	PUSH CX
+	PUSH DX
 	mov x, 0 ; incremento total palavras
 	mov y, 0 ; incremento total letras renderizadas de uma palavra
 	mov POSx, 32 ; pos no ecra x
-	MOV POSy, 9 ; pos no ecra y
+	MOV POSy, 10 ; pos no ecra y
 	MOV CX, 0
 	displayString:
+		CMP x, 5 ; If we printed all the words
+		JAE returnEnd
+
 		goto_xy POSx,POSy
 		MOV BX, CX ; posicao atual na string
 		MOV DX, [gamewordslist + BX]
@@ -298,20 +302,20 @@ DisplayWordsFromVariable proc
 		INC POSx; INDEX memoria na variavel
 		INC y; total letras renderizadas
 
-		CMP x, 5 ; If we printed all the words
-		JAE returnEnd
 
-		CMP DL,'#'
+		cmp dl, 00AH
 		JE nextstring
 
 		JMP displaystring
 		;CMP y, 15; na palavra ( lista de strings )
 		;JB displayString
-	verifica_espaco:
-	 	CMP DX,' '
 
 
 	returnEnd:
+		POP DX
+		POP CX
+		POP BX
+		POP AX
 		RET
 	nextString:
 		INC x
@@ -589,9 +593,9 @@ HandleGame proc
 		goto_xy	0,0
 		call DisplayFile
 		call DisplayWordsList
+		call DisplayWordsFromVariable
 		call GenerateNewGameBoard
 		call HandleWordSelection
-		call DisplayWordsFromVariable
 
 HandleGame	endp
 
