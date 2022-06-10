@@ -83,6 +83,11 @@ dseg  segment para public 'data' ; start of code segment D
 
 	x word ?
 	y word ?
+	
+	xint db 0
+
+	gameWordsList  dw 100 dup(' '); list of the words to be found
+	gameWordsReaded dw 0 ; total words readed from the file
 
 dseg	ends ; end of code segment D
 
@@ -101,16 +106,7 @@ endm
 
 ; ======== END OF MACROS ===========
 
-;------------------------------------------------------
-;RandomNumber - calcula um numero aleatorio de 16 bits
-;Parametros passados pela pilha
-;entrada:
-;nao tem parametros de entrada
-;saida:
-;param1 - 16 bits - numero aleatorio calculado
-;notas adicionais:
-; deve estar definida uma variavel => ultimo_num_aleat dw 0
-; assume-se que DS esta a apontar para o segmento onde esta armazenada ultimo_num_aleat
+
 RandomNumber proc near
 
 	sub	sp,2
@@ -145,19 +141,7 @@ RandomNumber proc near
 	pop	bp
 	ret
 RandomNumber endp
-;------------------------------------------------------
-;PrintNumber - imprime um numero de 16 bits na posicao x,y
-;Parametros passados pela pilha
-;entrada:
-;param1 -  8 bits - posicao x
-;param2 -  8 bits - posicao y
-;param3 - 16 bits - numero a imprimir
-;saida:
-;nao tem parametros de saida
-;notas adicionais:
-; deve estar definida uma variavel => str_num db 5 dup(?),'$'
-; assume-se que DS esta a apontar para o segmento onde esta armazenada str_num
-; sao eliminados da pilha os parametros de entrada
+
 PrintNumber proc near
 	push	bp
 	mov		bp,sp
@@ -231,6 +215,7 @@ DisplayAbout	endp
 DisplayWordsList proc
 	MOV POSx, 32
 	MOV POSy, 3
+	MOV x, 0
 	goto_xy POSx,POSy
 	mov     ah,3dh
 	mov     al,0
@@ -250,14 +235,27 @@ DisplayWordsList proc
 			mov     bx,HandleFich
 			mov     cx,1
 			lea     dx,car_fich
+
 			int     21h
 
 			jc		erro_ler
 			cmp		ax,0		;EOF?
+
 			je		fecha_ficheiro
 			mov     ah,02h
+
 			mov		dl,car_fich
+			PUSH AX
+			PUSH BX
+				XOR BX,BX
+				MOV BX, x
+				MOV [gamewordslist + BX], DX
+			POP BX
+			POP AX
+
 			int		21h
+			INC x; increments x +1
+
 			cmp dl, 00AH
 			JE prox_linha
 			JMP	ler_ciclo
@@ -282,6 +280,48 @@ DisplayWordsList proc
 	sai:
 		ret
 DisplayWordsList endp
+
+
+DisplayWordsFromVariable proc
+	mov x, 0 ; incremento total palavras
+	mov y, 0 ; incremento total letras renderizadas de uma palavra
+	mov POSx, 32 ; pos no ecra x
+	MOV POSy, 9 ; pos no ecra y
+	MOV CX, 0
+	displayString:
+		goto_xy POSx,POSy
+		MOV BX, CX ; posicao atual na string
+		MOV DX, [gamewordslist + BX]
+		int 21h
+
+		INC CX
+		INC POSx; INDEX memoria na variavel
+		INC y; total letras renderizadas
+
+		CMP x, 5 ; If we printed all the words
+		JAE returnEnd
+
+		CMP DL,'#'
+		JE nextstring
+
+		JMP displaystring
+		;CMP y, 15; na palavra ( lista de strings )
+		;JB displayString
+	verifica_espaco:
+	 	CMP DX,' '
+
+
+	returnEnd:
+		RET
+	nextString:
+		INC x
+		INC POSy
+		MOV y, 0
+		MOV POSx, 32
+		JMP displayString
+
+DisplayWordsFromVariable endp
+
 
 DisplayTop10 proc
 	call CleanScreen
@@ -551,6 +591,8 @@ HandleGame proc
 		call DisplayWordsList
 		call GenerateNewGameBoard
 		call HandleWordSelection
+		call DisplayWordsFromVariable
+
 HandleGame	endp
 
 GameMenu proc
