@@ -229,6 +229,25 @@ DisplayWordsList proc
 			lea     dx,Erro_Open
 			int     21h
 			jmp     sai
+	prox_character:
+		cmp dl, 00AH
+		JE prox_linha
+		JMP	ler_ciclo
+	guarda_caracter:
+		PUSH AX
+		PUSH BX
+			XOR BX,BX
+			MOV BX, x
+			MOV [gamewordslist + BX], DX
+		POP BX
+		POP AX
+		INC x; increments x +1
+		jmp prox_character
+	logica_escrita:
+		cmp dl, 65
+		JAE guarda_caracter
+
+		JMP prox_character
 	ler_ciclo:
 			mov     ah,3fh
 			mov     bx,HandleFich
@@ -244,20 +263,11 @@ DisplayWordsList proc
 			mov     ah,02h
 
 			mov		dl,car_fich
-			PUSH AX
-			PUSH BX
-				XOR BX,BX
-				MOV BX, x
-				MOV [gamewordslist + BX], DX
-			POP BX
-			POP AX
-
 			int		21h
-			INC x; increments x +1
 
-			cmp dl, 00AH
-			JE prox_linha
-			JMP	ler_ciclo
+			CMP DL,90
+			JBE guarda_caracter
+			JMP prox_character
 	prox_linha:
 		ADD POSy, 1
 		goto_xy POSx,POSy
