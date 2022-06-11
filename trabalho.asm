@@ -72,10 +72,14 @@ dseg  segment para public 'data' ; start of code segment D
 	hours		dw			0
 	minutes		dw			0
 	seconds		dw			0
-	;   actualSeconds 		dw 		0 Variable NEEDED for time read from the system
-	timeStart	dw			0	; Inital start time
-	timeGame	dw			?;? value for it?
-	timeLimit	dw			90	; Time limit for the user
+	actualSeconds 		dw 		0 ;Variable NEEDED for time read from the system
+	timeStart	dw			0	  ; Inital start time
+	timeGame	dw			?     ;? value for it?
+	timeLimit	dw			90	  ; Time limit for the user
+	stringLimit db     "/ 90$"
+	
+	STR12		db			"     " ; string para 12 digitos
+
 
 	; variables used by the random procedure
 	ultimo_num_aleat dw 0
@@ -659,6 +663,7 @@ HandleWordSelection	endp
 
 HandleGame proc
 		call 	CleanScreen
+		
 		goto_xy	0,0
 		call DisplayFile
 		call DisplayWordsErrors
@@ -667,6 +672,9 @@ HandleGame proc
 		call DisplayWordsFromVariable
 		call GenerateNewGameBoard
 		call HandleWordSelection
+		
+		
+
 
 HandleGame	endp
 
@@ -675,6 +683,9 @@ GameMenu proc
 		call ReadKeyboardInput; reads the user keyboard inputs
 		call CleanScreen; clean the game screen
 		call DisplayMenu; imprime o menu no ecra
+		call GameTime
+		
+		
 
 		mov ah, 1h
 		int 21h
@@ -698,6 +709,9 @@ GameMenu proc
 
 		OPCSTARTGAME:
 			call HandleGame
+			
+			
+			
 
 		OPCABOUT:
 			call DisplayAbout
@@ -767,7 +781,7 @@ PUSHF
 		MOV 	STR12[1],ah
 		MOV 	STR12[2],'h'		
 		MOV 	STR12[3],'$'
-		GOTO_XY 42,3
+		GOTO_XY 52,2
 		MOSTRA STR12 		
         
 		;minutes
@@ -781,7 +795,7 @@ PUSHF
 		MOV 	STR12[1],ah
 		MOV 	STR12[2],'m'		
 		MOV 	STR12[3],'$'
-		GOTO_XY	46,3
+		GOTO_XY 56,2
 		MOSTRA	STR12 		
 		
 		mov 	ax,seconds
@@ -793,11 +807,11 @@ PUSHF
 		MOV 	STR12[1],ah
 		MOV 	STR12[2],'s'		
 		MOV 	STR12[3],'$'
-		GOTO_XY	50,3
-		MOSTRA	STR12 		
+		GOTO_XY 60, 2
+		MOSTRA STR12 		
 		
 		mov ax,time
-		dec time
+		dec AX
 		mov bl, 10
 		div bl
 		add al, 30h
@@ -807,8 +821,8 @@ PUSHF
 		MOV stringLimit[1], al
 		MOV stringLimit[2], ah
 
-		GOTO_XY 42,5
-		MOSTRA stringLimit
+		;GOTO_XY 65,4
+		;MOSTRA stringLimit
 
 fim_horas:		
 		goto_xy	POSx,POSy			; Volta a colocar o cursor onde estava antes de actualizar as horas
@@ -826,7 +840,7 @@ GameTime endp
 DisplayCountdown proc
 	MOV POSx, 42
 	MOV POSy, 2
-	PUSH AH
+	PUSH AX
 	PUSH DX
 	mov ah,09h
 	lea DX, stringlimit
