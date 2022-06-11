@@ -107,6 +107,14 @@ goto_xy	macro	POSx,POSy
 	int		10h
 endm
 
+; MOSTRA - Faz o display de uma string terminada em $
+
+MOSTRA MACRO STR 
+MOV AH,09H
+LEA DX,STR 
+INT 21H
+ENDM
+
 ; ======== END OF MACROS ===========
 
 
