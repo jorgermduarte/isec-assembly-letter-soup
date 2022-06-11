@@ -740,6 +740,99 @@ Time proc   ;proc for time reading from the system
 
 Time endp
 
+GameTime proc
+PUSHF
+		PUSH AX
+		PUSH BX
+		PUSH CX
+		PUSH DX		
+
+		CALL 	Time			; Horas MINUTOS e segundos do Sistema
+		
+		MOV		AX, seconds
+		cmp		AX, actualSeconds		; VErifica se os segundos mudaram desde a ultima leitura
+		je		fim_horas			; Se a hora não mudou desde a última leitura sai.
+		mov		actualSeconds, AX			; Se segundos são diferentes actualiza informação do tempo 
+		
+		;inc timeGame
+		;mov AX, timeGame
+		;mov CX, timeGame
+		
+		mov 	ax,hours
+		MOV		bl, 10     
+		div 	bl					;The quotient is stored in the AL, AX,
+		add 	al, 30h				; Caracter Correspondente às dezenas
+		add		ah,	30h				; Caracter Correspondente às unidades
+		MOV 	STR12[0],al			; 
+		MOV 	STR12[1],ah
+		MOV 	STR12[2],'h'		
+		MOV 	STR12[3],'$'
+		GOTO_XY 42,3
+		MOSTRA STR12 		
+        
+		;minutes
+
+		mov 	ax,minutes
+		MOV 	bl, 10     
+		div 	bl
+		add 	al, 30h				; Caracter Correspondente às dezenas
+		add		ah,	30h				; Caracter Correspondente às unidades
+		MOV 	STR12[0],al			; 
+		MOV 	STR12[1],ah
+		MOV 	STR12[2],'m'		
+		MOV 	STR12[3],'$'
+		GOTO_XY	46,3
+		MOSTRA	STR12 		
+		
+		mov 	ax,seconds
+		MOV 	bl, 10     
+		div 	bl
+		add 	al, 30h				; Caracter Correspondente às dezenas
+		add		ah,	30h				; Caracter Correspondente às unidades
+		MOV 	STR12[0],al			; 
+		MOV 	STR12[1],ah
+		MOV 	STR12[2],'s'		
+		MOV 	STR12[3],'$'
+		GOTO_XY	50,3
+		MOSTRA	STR12 		
+		
+		mov ax,time
+		dec time
+		mov bl, 10
+		div bl
+		add al, 30h
+		add ah, 30h
+	 	
+		MOV stringLimit[0], '0'
+		MOV stringLimit[1], al
+		MOV stringLimit[2], ah
+
+		GOTO_XY 42,5
+		MOSTRA stringLimit
+
+fim_horas:		
+		goto_xy	POSx,POSy			; Volta a colocar o cursor onde estava antes de actualizar as horas
+		
+		POPF
+		POP DX		
+		POP CX
+		POP BX
+		POP AX
+		RET		
+
+	;PROC don't show the date	
+GameTime endp
+
+DisplayCountdown proc
+	MOV POSx, 42
+	MOV POSy, 2
+	PUSH AH
+	PUSH DX
+	mov ah,09h
+	lea DX, stringlimit
+	int 21h
+DisplayCountdown endp
+
 ; ------------------------------------------------------------------
 ; ---------------------------- MAIN --------------------------------
 ; ------------------------------------------------------------------
