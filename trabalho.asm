@@ -90,6 +90,7 @@ dseg  segment para public 'data' ; start of code segment D
 	gameWordsReaded dw 0 ; total words readed from the file
 
 	totalWordsError db 5 dup(0); total failed tries
+	totalWordsFound db 5 dup(0); total words found
 
 dseg	ends ; end of code segment D
 
@@ -204,7 +205,7 @@ DisplayMenu	proc
 
 DisplayMenu	endp
 
-DisplayErrors proc
+DisplayWordsErrors proc
 	MOV POSx, 52
 	MOV POSy, 8
 	goto_xy POSx,POSy
@@ -224,7 +225,32 @@ DisplayErrors proc
 	POP AX
 
 	RET
-DisplayErrors endp
+DisplayWordsErrors endp
+
+
+DisplayFoundWords proc
+	MOV POSx, 52
+	MOV POSy, 5
+	goto_xy POSx,POSy
+	PUSH AX
+	PUSH CX
+
+		mov	dl,POSY
+		mov	dh,POSx
+		MOV AH,0
+		MOV AL, totalWordsFound
+
+		push	dx
+		push	ax
+		XOR AX,AX
+		CALL PrintNumber
+	POP CX
+	POP AX
+
+	RET
+DisplayFoundWords endp
+
+
 
 DisplayAbout	proc
 	goto_xy   0,3
@@ -311,6 +337,7 @@ DisplayWordsList proc
 	sai:
 		ret
 DisplayWordsList endp
+
 
 
 DisplayWordsFromVariable proc
@@ -626,7 +653,8 @@ HandleGame proc
 		call 	CleanScreen
 		goto_xy	0,0
 		call DisplayFile
-		call DisplayErrors
+		call DisplayWordsErrors
+		call DisplayFoundWords
 		call DisplayWordsList
 		call DisplayWordsFromVariable
 		call GenerateNewGameBoard
