@@ -20,7 +20,8 @@ dseg  segment para public 'data' ; start of code segment D
 				db "                    *   1. Jogar                         *",13,10
 				db "                    *   2. Top 10                        *",13,10
 				db "                    *   3. Sobre                         *",13,10
-				db "                    *   4. Sair                          *",13,10
+				db "                    *   4. Gere Palavras                 *",13,10
+				db "                    *   5. Sair                          *",13,10
 				db "                    **************************************",13,10
 				db "                                                          ",13,10,'$'
 
@@ -47,6 +48,19 @@ dseg  segment para public 'data' ; start of code segment D
 				db "                          Para voltar clique no ESC         ",13,10
 				db "                    ****************************************",13,10
 				db "                                                            ",13,10,'$'
+
+	MenuGerePalavras db "                                                          ",13,10
+				db "                    **************************************",13,10
+				db "                    *   Gerir palavras:                  *",13,10
+				db "                    *                                    *",13,10
+				db "                    *   1. Adicionar nova palavra        *",13,10
+				db "                    *   2. Listar palavras               *",13,10
+				db "                    *   3. Cancelar                      *",13,10
+				db "                    **************************************",13,10
+				db "                                                          ",13,10,'$'
+	
+
+
 
 	Erro_Open       db      'Erro ao tentar abrir o ficheiro$'
 	Erro_Ler_Msg    db      'Erro ao tentar ler do ficheiro$'
@@ -216,6 +230,16 @@ DisplayMenu	proc
 	ret
 
 DisplayMenu	endp
+
+DisplayMenuGerePalavras PROC
+call CleanScreen
+goto_xy   0,3
+	lea  dx,  MenuGerePalavras
+	mov  ah,  9
+	int  21h
+	call GameMenu
+	ret
+DisplayMenuGerePalavras ENDP
 
 DisplayWordsErrors proc
 	MOV POSx, 52
@@ -669,7 +693,7 @@ HandleGame proc
 		call DisplayWordsErrors
 		call DisplayFoundWords
 		call DisplayWordsList
-		call DisplayWordsFromVariable
+		;call DisplayWordsFromVariable
 		call GenerateNewGameBoard
 		call HandleWordSelection
 		
@@ -684,8 +708,6 @@ GameMenu proc
 		call CleanScreen; clean the game screen
 		call DisplayMenu; imprime o menu no ecra
 		call GameTime
-		
-		
 
 		mov ah, 1h
 		int 21h
@@ -699,6 +721,8 @@ GameMenu proc
 		cmp		al, 51 ; 3
 		je		OPCABOUT
 		cmp		al, 52 ; 4
+		je		OPCGEREREPOPALAVRAS
+		cmp		al, 53 ; 5
 		je		OPCLEAVE
 		cmp		al, 27 ; ESC
 		je		OPCLEAVE
@@ -709,9 +733,9 @@ GameMenu proc
 
 		OPCSTARTGAME:
 			call HandleGame
-			
-			
-			
+
+		OPCGEREREPOPALAVRAS:
+			call DisplayMenuGerePalavras
 
 		OPCABOUT:
 			call DisplayAbout
