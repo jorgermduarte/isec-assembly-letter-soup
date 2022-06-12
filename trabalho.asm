@@ -78,6 +78,11 @@ dseg  segment para public 'data' ; start of code segment D
 	timeLimit	dw			90	  ; Time limit for the user
 	stringLimit db     "/ 90$"
 	
+	; Problemas com o contador.
+	; Podemos apresentar o tempo em que acabou o jogo.
+	hoursEnd				dw		?
+	secondsEnd			dw		?
+	minutesEnd			dw		?
 	STR12		db			"     " ; string para 12 digitos
 
 
@@ -684,6 +689,7 @@ GameMenu proc
 		call CleanScreen; clean the game screen
 		call DisplayMenu; imprime o menu no ecra
 		call GameTime
+		call DisplayCountdown
 		
 		
 
@@ -837,14 +843,60 @@ fim_horas:
 	;PROC don't show the date	
 GameTime endp
 
+
+Ler_tempo_fim PROC	
+ 
+		PUSH AX
+		PUSH BX
+		PUSH CX
+		PUSH DX
+	
+		PUSHF
+		
+		MOV AH, 2CH             ; Buscar a hORAS
+		INT 21H                 
+		
+		XOR AX,AX
+		MOV AL, DH              ; segundos para al
+		mov secondsEnd, AX		; guarda segundos na variavel correspondente
+		
+		XOR AX,AX
+		MOV AL, CL              ; Minutos para al
+		mov minutesEnd, AX         ; guarda MINUTOS na variavel correspondente
+		
+		XOR AX,AX
+		MOV AL, CH              ; Horas para al
+		mov hoursEnd,AX			; guarda HORAS na variavel correspondente
+ 
+		POPF
+		POP DX
+		POP CX
+		POP BX
+		POP AX
+ 		RET 
+Ler_tempo_fim   ENDP 
+
+
+
 DisplayCountdown proc
-	MOV POSx, 42
-	MOV POSy, 2
-	PUSH AX
-	PUSH DX
+contagem:
+	MOV POSx, 52
+	MOV POSy, 3
+	
+	
 	mov ah,09h
-	lea DX, stringlimit
+	inc DX
+	lea DX, stringlimit	
+	
+    sub stringLimit[3], 1
+	cmp stringLimit[3] , 47
+	jb volta_ao_9
 	int 21h
+	
+	volta_ao_9:
+	mov stringLimit[3],0
+	mov stringLimit[3],57
+	je contagem
 DisplayCountdown endp
 
 ; ------------------------------------------------------------------
