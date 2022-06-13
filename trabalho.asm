@@ -58,9 +58,21 @@ dseg  segment para public 'data' ; start of code segment D
 				db "                    *   3. Cancelar                      *",13,10
 				db "                    **************************************",13,10
 				db "                                                          ",13,10,'$'
-	
 
+	MenuIntroduzaNovaPalavra db "                                             ",13,10
+				db "                    **************************************",13,10
+				db "                    *   Introduza a nova palavra:        *",13,10
+				db "                    *                                    *",13,10
+				db "                    *   ->                               *",13,10
+				db "                    *                                    *",13,10
+				db "                    **************************************",13,10
+				db "                                                          ",13,10,'$'
 
+	MenuListaPalavras 		db "                                             ",13,10
+				db "                    **************************************",13,10
+				db "                    *   Lista de todas as palavras:      *",13,10
+				db "                    **************************************",13,10
+				db "                                                          ",13,10,'$'
 
 	Erro_Open       db      'Erro ao tentar abrir o ficheiro$'
 	Erro_Ler_Msg    db      'Erro ao tentar ler do ficheiro$'
@@ -236,12 +248,113 @@ DisplayMenu	proc
 
 DisplayMenu	endp
 
+
+AdicionaNovaPalavraRepo PROC
+	call CleanScreen
+	goto_xy   0,3
+	lea  dx,  MenuIntroduzaNovaPalavra
+	mov  ah,  9
+	int  21h
+	RET
+AdicionaNovaPalavraRepo ENDP
+
+
+ListaTodasPalavrasExistentes PROC
+	call CleanScreen
+	goto_xy   0,3
+	lea  dx,  MenuListaPalavras
+	mov  ah,  9
+	int  21h
+
+	MOV POSx, 20
+	MOV POSy, 10
+	goto_xy POSx,POSy
+	mov     ah,3dh
+	mov     al,0
+	lea     dx,File_WordsList
+	int     21h
+	jc      erro_abrir
+	mov     HandleFich,ax
+	jmp     ler_ciclo
+	erro_abrir:
+			mov     ah,09h
+			lea     dx,Erro_Open
+			int     21h
+			jmp     sai
+
+	ler_ciclo:
+			mov     ah,3fh
+			mov     bx,HandleFich
+			mov     cx,1
+			lea     dx,car_fich
+			int     21h
+
+			jc		erro_ler
+			cmp		ax,0		;EOF?
+			je		fecha_ficheiro
+			mov     ah,02h
+			mov		dl,car_fich
+			int		21h
+			cmp dl, 00AH
+			JE prox_linha
+			JMP	ler_ciclo
+	prox_linha:
+		ADD POSy, 1
+		goto_xy POSx,POSy
+		jmp ler_ciclo
+	erro_ler:
+			mov     ah,09h
+			lea     dx,Erro_Ler_Msg
+			int     21h
+
+	fecha_ficheiro:
+			mov     ah,3eh
+			mov     bx,HandleFich
+			int     21h
+			jnc     sai
+
+			mov     ah,09h
+			lea     dx,Erro_Close
+			Int     21h
+	sai:
+		call GameMenu
+		goto_xy   0,3
+		ret
+ListaTodasPalavrasExistentes ENDP
+
+
+HandleMenuGerePalavras PROC
+	loopmenu:
+		call ReadKeyboardInput; reads the user keyboard inputs
+		mov ah, 1h
+		int 21h
+
+		cmp 	al, 49 ; 1
+		je		OPCNOVAPALAVRA
+		cmp		al, 50 ; 2
+		je		OPCLISTAPALAVRAS
+		cmp		al, 51 ; 3
+		je		SAIR
+		cmp		al, 27 ; ESC
+		je		SAIR
+		jmp loopmenu
+		SAIR:
+			RET
+		OPCNOVAPALAVRA:
+			call AdicionaNovaPalavraRepo
+			jmp SAIR
+		OPCLISTAPALAVRAS:
+			call ListaTodasPalavrasExistentes
+			jmp SAIR
+HandleMenuGerePalavras ENDP
+
 DisplayMenuGerePalavras PROC
-call CleanScreen
-goto_xy   0,3
+	call CleanScreen
+	goto_xy   0,3
 	lea  dx,  MenuGerePalavras
 	mov  ah,  9
 	int  21h
+	call HandleMenuGerePalavras
 	call GameMenu
 	ret
 DisplayMenuGerePalavras ENDP
