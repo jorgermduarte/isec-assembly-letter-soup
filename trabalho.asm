@@ -108,6 +108,7 @@ dseg  segment para public 'data' ; start of code segment D
 	
 	; Problemas com o contador.
 	; Podemos apresentar o tempo em que acabou o jogo.
+	tempo		dw 			99
 	hoursEnd				dw		?
 	secondsEnd			dw		?
 	minutesEnd			dw		?
@@ -795,6 +796,7 @@ DisplayGameWords endp
 
 HandleWordSelection	PROC
 	CICLO:	
+		call GameTime
 			; goto_xy	POSxa,POSya	; Vai para a posição anterior do cursor
 			; mov		ah, 02h
 			; mov		dl, Car	; Repoe Caracter guardado 
@@ -901,7 +903,6 @@ GameMenu proc
 		call ReadKeyboardInput; reads the user keyboard inputs
 		call CleanScreen; clean the game screen
 		call DisplayMenu; imprime o menu no ecra
-		call GameTime
 		;call DisplayCountdown
 
 		mov ah, 1h
@@ -975,6 +976,7 @@ Time endp
 
 GameTime proc
 PUSHF
+		
 		PUSH AX
 		PUSH BX
 		PUSH CX
@@ -1029,33 +1031,46 @@ PUSHF
 		GOTO_XY 60, 2
 		MOSTRA STR12 		
 		
-		mov ax,time
-		dec AX
+		mov ax,tempo
+		dec tempo
+		;dec points
 		mov bl, 10
 		div bl
 		add al, 30h
 		add ah, 30h
 	 	
-		MOV stringLimit[0], '0'
-		MOV stringLimit[1], al
-		MOV stringLimit[2], ah
+		MOV STR12[0], '0'
+		MOV STR12[1], al
+		MOV STR12[2], ah
 
-		;GOTO_XY 65,4
-		;MOSTRA stringLimit
+		GOTO_XY 52,3
+		MOSTRA STR12
+		;jmp fim_horas
 
-fim_horas:		
+
+
+		;cmp points , 200
+		;jbe jogo_acabou
+
+fim_horas:
 		goto_xy	POSx,POSy			; Volta a colocar o cursor onde estava antes de actualizar as horas
-		
+
 		POPF
-		POP DX		
+		POP DX
 		POP CX
 		POP BX
 		POP AX
 		RET		
 
-	;PROC don't show the date	
+jogo_acabou: 
+	call CleanScreen
+	;goto_xy   0,3
+	;lea  dx,  MenuPerdeste
+	;mov  ah,  9
+	;int  21h
+	RET
+		
 GameTime endp
-
 
 Ler_tempo_fim PROC	
  
