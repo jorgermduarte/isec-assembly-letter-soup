@@ -77,7 +77,7 @@ dseg  segment para public 'data' ; start of code segment D
 	Erro_Open       db      'Erro ao tentar abrir o ficheiro$'
 	Erro_Ler_Msg    db      'Erro ao tentar ler do ficheiro$'
 	Erro_Close      db      'Erro ao tentar fechar o ficheiro$'
-	File_Board      db      'dados.txt',0; dados.txt file name
+	File_Board      db      'nivel2.txt',0; dados.txt file name
 	File_Top10		db 		'top10.txt',0 ; top10.txt file name
 	File_WordsList  db 		'palavras.txt',0; palavras.txt file name
 	HandleFich      dw      0
@@ -664,6 +664,7 @@ DisplayFile	proc
 		ret
 DisplayFile	endp
 
+
 GenerateNewGameBoard proc
 	MOV x, 2
 	MOV y, 1
@@ -677,18 +678,51 @@ GenerateNewGameBoard proc
 
 		RET
 	DISPLAYLETTER:
+		
+
+		INC x
+		INC x ; incrmenet 2 times the col because of the space between
+
+		PUSH AX
+
+		MOV AH,08h
+		int 10h                 ; read a character
+		MOV DL,AL
+
+		POP AX
+
+		CMP DL,'*'
+		JNE PRINTLETTER
+		CMP DL,'*'
+		JMP NEXTLINE
+	PRINTLETTER:
+		PUSH AX
+
+		MOV AH,08h
+		int 10h                 ; read a character
+		MOV DL,AL
+
+		POP AX
+
+		CMP DL,'+'
+		JNE BEGIN
+
+		PUSH BX
+		PUSH AX
+		PUSH DX
+
 		MOV BX, 0 ; custom variable to hold the number
 		MOV BL, AL
 		MOV DL, BL
 
 		MOV AH, 2 ; set output function
 		INT 21H ; print ASCII character
-		INC x
-		INC x ; incrmenet 2 times the col because of the space between
-		CMP x,26
-		JNE BEGIN
-		CMP x,26
-		JMP NEXTLINE
+
+		POP DX
+		POP AX
+		POP BX
+
+		JMP BEGIN
 	GENERATERNUMBER:
 		call RandomNumber
 		POP AX
