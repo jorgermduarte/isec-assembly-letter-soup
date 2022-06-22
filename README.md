@@ -17,9 +17,9 @@
 - [ ] **BOARD**:
     - [x] base de jogo ( tabuleiro 12x12)
     - [x] gerado tabuleiro com letras aleatórias
-    - [ ] disposição de letras ( vertical, horizontal, diagonal) todos os sentidos
-        - [ ] sobre este tabuleiro com letras aleatórias é colocado as palavras a encontrar
-        - [ ] as palavras aleatorias devem derivar de um ficheiro de texto com o local e o local a serem colocadas no tabuleiro
+    - [x] disposição de letras ( vertical, horizontal, diagonal) todos os sentidos
+        - [x] sobre este tabuleiro com letras aleatórias é colocado as palavras a encontrar
+        - [x] as palavras aleatorias devem derivar de um ficheiro de texto com o local e o local a serem colocadas no tabuleiro
     - [ ] identificação de todas as palavras a descobrir
     - [ ] ao encontrar uma palavra no tabuleiro o seu fundo deve ficar verde
     - [ ] identificação de fim de jogo
@@ -27,8 +27,8 @@
 
 - [ ] **Pontuação**:
     - [ ] segundos despendidos no jogo
-    - [ ] numero de palavras encontradas
-    - [ ] numero de tentativas falhadas
+    - [x] numero de palavras encontradas
+    - [x] numero de tentativas falhadas
 
 - [ ] **Classificação**:
     - [x] apresentacao pontuacao obtida
