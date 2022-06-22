@@ -63,7 +63,9 @@ dseg  segment para public 'data' ; start of code segment D
 				db "                    **************************************",13,10
 				db "                    *   Introduza a nova palavra:        *",13,10
 				db "                    *                                    *",13,10
-				db "                    *   ->                               *",13,10
+				db "                    *   ->  _ _ _ _ _ _ _ _ _ _          *",13,10
+				db "                    *                                    *",13,10
+				db "                    *     PRIMA ENTER PARA ADICIONAR     *",13,10
 				db "                    *                                    *",13,10
 				db "                    **************************************",13,10
 				db "                                                          ",13,10,'$'
@@ -77,7 +79,7 @@ dseg  segment para public 'data' ; start of code segment D
 	Erro_Open       db      'Erro ao tentar abrir o ficheiro$'
 	Erro_Ler_Msg    db      'Erro ao tentar ler do ficheiro$'
 	Erro_Close      db      'Erro ao tentar fechar o ficheiro$'
-	File_Board      db      'nivel2.txt',0; dados.txt file name
+	File_Board      db      'nivel1.txt',0; dados.txt file name
 	File_Top10		db 		'top10.txt',0 ; top10.txt file name
 	File_WordsList  db 		'palavras.txt',0; palavras.txt file name
 	HandleFich      dw      0
@@ -255,7 +257,50 @@ AdicionaNovaPalavraRepo PROC
 	lea  dx,  MenuIntroduzaNovaPalavra
 	mov  ah,  9
 	int  21h
-	RET
+	mov POSx,28
+	mov POSy,7
+	mov x,0
+	loopchar:
+		goto_xy POSx,POSy
+		ADD POSx,2
+
+		INC x
+		INC x
+
+		MOV AH, 1                    ; read a character
+		INT 21H
+
+
+
+		MOV BL, AL                   ; save input character into BL
+		MOV AH, 2                    ; carriage return
+		MOV DL, 0DH
+
+		CMP AL,27 ; ESC PRESS
+		JE LEAVEFUN
+
+		CMP AL,13 ; ENTER PRESS
+		JE ADICIONAPALAVRA
+
+		INT 21H
+
+		MOV DL, 0AH                  ; line feed
+		INT 21H
+
+		CMP x,20
+		JNE loopchar
+
+		CMP x,20
+		jmp returnrewrite
+	ADICIONAPALAVRA:
+		; TODO
+		RET
+	LEAVEFUN:
+		RET
+	returnrewrite:
+		MOV POSx, 28
+		MOV x,0
+		jmp loopchar
 AdicionaNovaPalavraRepo ENDP
 
 
@@ -493,7 +538,6 @@ DisplayWordsList proc
 DisplayWordsList endp
 
 
-
 DisplayWordsFromVariable proc
 	PUSH AX
 	PUSH BX
@@ -678,8 +722,6 @@ GenerateNewGameBoard proc
 
 		RET
 	DISPLAYLETTER:
-		
-
 		INC x
 		INC x ; incrmenet 2 times the col because of the space between
 
